@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2>User Profile</h2>
+    <div id="user-profile">
+      <!-- Display user information here -->
+    </div>
+    
+  
+    <div id="follow-unfollow">
+      <!-- Follow/Unfollow buttons and form go here -->
+    </div>
+    <h3>Create a New Post</h3>
+<div>
+  <textarea id="post-content" rows="4" cols="50" placeholder="Write your post here..."></textarea>
+</div>
+<button class="btn btn-primary" onclick="createPost()">Post</button>
+  </div>
+  <script>
+    const profileEndpoint = '/profile';
+    const followEndpoint = '/follow/';
+    const unfollowEndpoint = '/unfollow/';
+  
+    const fetchUserProfile = async () => {
+      try {
+        const response = await fetch(profileEndpoint);
+        if (!response.ok) {
+          throw new Error(`Error fetching user profile. Status: ${response.status}`);
+        }
+
+        const user = await response.json();
+        const userProfileDiv = document.getElementById('user-profile');
+        userProfileDiv.innerHTML = `
+          <p>Username: ${user.username}</p>
+          <p>Email: ${user.email}</p>
+          <p>Followers: ${user.followers}</p>
+          <p>Following: ${user.following}</p>
+          <button class="btn btn-primary" onclick="handleFollowButtonClick(${user.id}, '${followEndpoint}')">Follow</button>
+          <button class="btn btn-danger" onclick="handleFollowButtonClick(${user.id}, '${unfollowEndpoint}')">Unfollow</button>
+        `;
+
+        // Fetch and display the list of other users
+        fetchOtherUsers();
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
+    };
+    const fetchOtherUsers = async () => {
+      try {
+        const response = await fetch('/users');
+        if (!response.ok) {
+          throw new Error(`Error fetching users. Status: ${response.status}`);
+        }
+
+        const users = await response.json();
+        const followUnfollowDiv = document.getElementById('follow-unfollow');
+        followUnfollowDiv.innerHTML = `
+          <h3>Follow/Unfollow</h3>
+          <ul>
+            ${users.map((user) => `
+              <li>${user.username} - 
+                ${user.isFollowing
+                  ? `<button class="btn btn-danger" onclick="handleFollowButtonClick(${user.id}, '${unfollowEndpoint}')">Unfollow</button>`
+                  : `<button class="btn btn-primary" onclick="handleFollowButtonClick(${user.id}, '${followEndpoint}')">Follow</button>`}
+              </li>`).join('')}
+          </ul>
+        `;
+      } catch (error) {
+        console.error('Error fetching users:', error);
+      }
+    };
+
+const fetchUserPosts = async () => {
+  try {
+    const response = await fetch('/posts');
+    if (!response.ok) {
+      throw new Error(`Error fetching user posts. Status: ${response.status}`);
+    }
+
+    const posts = await response.json();
+    const userPostsDiv = document.getElementById('user-posts');
+    userPostsDiv.innerHTML = `
+      <ul>
+        ${posts.map((post) => `<li>${post.content} - ${post.created_at}</li>`).join('')}
+      </ul>
+    `;
+  } catch (error) {
+    console.error('Error fetching user posts:', error);
+  }
+};
+const createPost = async () => {
+  try {
+    const postContent = document.getElementById('post-content').value;
+
+    const response = await fetch('/post', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ content: postContent }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error creating post. Status: ${response.status}`);
+    }
+
+    const newPost = await response.json();
+    console.log(`Post created successfully: ${newPost.content}`);
+    
+    // Optionally, you can fetch and update the user's posts after creating a new post
+    fetchUserPosts();
+  } catch (error) {
+    console.error('Error creating post:', error);
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+  fetchUserProfile();
+  fetchUserPosts(); // Add this line to fetch user posts on page load
+});
+
+
+const handleFollowButtonClick = async (userId, action) => {
+      try {
+        const response = await fetch(`${action}${userId}`, { method: 'POST' });
+        if (!response.ok) {
+          throw new Error(`Error ${action} user. Status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Display information about the user followed or unfollowed
+        console.log(result.message);
+
+        // Update the user profile information and other users
+        fetchUserProfile();
+      } catch (error) {
+        console.error(`Error ${action} user:`, error);
+      }
+    };
+  
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchUserProfile();
+    });
+  </script>
+</body>
+</html>
