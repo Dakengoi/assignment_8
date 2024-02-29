@@ -33,29 +33,32 @@
             </div>
         </div>
     </div>
-    <!-- Add this modal code after your existing HTML -->
-<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+<!-- Add New User Form -->
+<form id="addUserForm">
+  <input type="text" id="username" placeholder="Username">
+  <input type="text" id="email" placeholder="Email">
+  <input type="password" id="password" placeholder="Password">
+  <button type="submit" class="btn btn-success">Add User</button>
+</form>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel"
+  aria-hidden="true">
   <div class="modal-dialog" role="document">
       <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="editModalLabel">Edit User</h5>
+              <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <span aria-hidden="true">&times;</span>
               </button>
           </div>
           <div class="modal-body">
               <form id="editUserForm">
-                  <div class="form-group">
-                      <label for="editUsername">Username</label>
-                      <input type="text" class="form-control" id="editUsername" name="username" required>
-                  </div>
-                  <!-- Add input fields for other user information here (e.g., email, password) -->
-                  <input type="hidden" id="editUserId">
+                  <input type="text" id="editUsername" placeholder="Username">
+                  <input type="text" id="editEmail" placeholder="Email">
+                  <input type="password" id="editPassword" placeholder="Password">
+                  <button type="submit" class="btn btn-primary">Save Changes</button>
               </form>
-          </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-              <button type="submit" class="btn btn-primary" id="saveChangesBtn">Save Changes</button>
           </div>
       </div>
   </div>
@@ -101,42 +104,7 @@ $(document).ready(function() {
     
     // Call fetchUsers function when the page loads
     fetchUsers();
-    
-    // Event listener for editing user data
-    $(document).on('click', '.edit-btn', function() {
-        const userId = $(this).data('id');
-        // Fetch user data by userId and populate modal fields
-        $.get(`/admin/users/${userId}`, function(user) {
-            $('#editUsername').val(user.username);
-            // Populate other input fields as needed
-            $('#editUserId').val(userId);
-            // Show the modal
-            $('#editModal').modal('show');
-        });
-    });
-    
-    // Event listener for saving changes in the modal
-    $('#saveChangesBtn').click(function() {
-        const userId = $('#editUserId').val();
-        const username = $('#editUsername').val();
-        // Retrieve other input fields as needed
-        const userData = { 
-            username: username /* add other fields here */ 
-        };
 
-        // Call editUserData function to update user data
-        editUserData(userId, userData)
-            .then(editedUserData => {
-                alert('User data updated successfully');
-                $('#editModal').modal('hide');
-                // Refresh user data in the table
-                fetchUsers();
-            })
-            .catch(error => {
-                console.error(error);
-                alert('Error updating user data');
-            });
-    });
 
     // Delete user
     $(document).on('click', '.delete-btn', function() {

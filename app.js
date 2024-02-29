@@ -11,7 +11,10 @@ const port = 3000;
 const pool = new Pool({
   connectionString: process.env.POSTGRES_URL ,
 })
-
+pool.connect((err) => {
+  if (err) throw err
+  console.log("Connect to PostgreSQL successfully!")
+})
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -308,7 +311,18 @@ app.get("/users", async (req, res) => {
   }
 });
 
-
+app.get('/user/:id', async (req, res) =>{
+  try{
+    const userID = req.params.id
+    const result = await pool.query('SELECT * FROM users WHERE id=$1', [userID])
+    const user = result.rows[0]
+    res.json(user)
+  }
+  catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error fetching users" });
+  }
+})
 
 app.put("/update-user", async (req, res) => {
   try {
@@ -329,6 +343,26 @@ app.put("/update-user", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error updating user data" });
+  }
+});
+
+app.post("/add-user", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Perform validation if necessary
+
+    // Insert new user data into the database
+    await pool.query(
+      "INSERT INTO users (username, email, password) VALUES ($1, $2, $3)",
+      [username, email, hashedPassword]
+    );
+
+    res.json({ message: "User added successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error adding user" });
   }
 });
 
