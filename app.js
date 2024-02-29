@@ -10,7 +10,7 @@ const port = 3000;
 
 const pool = new Pool({
   user: "postgres",
-  host: "localhost",
+  host: "127.0.0.1",
   database: "social-media",
   password: "asdfghjkl;'",
   port: 5432,
@@ -51,9 +51,6 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.get("/danekerscode", (req, res) => {
-  res.send("hello world from danekersocde");
-});
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
@@ -98,6 +95,27 @@ app.post("/logout", (req, res) => {
     // Redirect the user to the login page or any other appropriate page after logout
     res.redirect("/");
   });
+});
+app.get('/followers/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const { rows } = await pool.query('SELECT u.* FROM users u JOIN followers f ON u.id = f.user_id WHERE f.user_id = $1', [userId]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching followers:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+app.get('/following/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const { rows } = await pool.query('SELECT u.* FROM users u JOIN following f ON u.id = f.user_id WHERE f.user_id = $1', [userId]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching following:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
 
 // Follow user
@@ -293,6 +311,49 @@ app.get("/users", async (req, res) => {
     res.status(500).json({ error: "Error fetching users" });
   }
 });
+
+
+
+app.put("/update-user", async (req, res) => {
+  try {
+    const userId = req.session.userId; // Assuming you have session management middleware to retrieve userId
+    const { username, email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+
+    // Perform validation if necessary
+
+    // Update user data in the database
+    await pool.query(
+      "UPDATE users SET username = $1, email = $2, password = $3 WHERE id = $4",
+      [username, email, hashedPassword, userId]
+    );
+
+    res.json({ message: "User data updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error updating user data" });
+  }
+});
+
+app.delete("/delete-account", async (req, res) => {
+  try {
+    const userId = req.session.userId; // Assuming you have session management middleware to retrieve userId
+
+    // Delete user data from the database
+    await pool.query("DELETE FROM users WHERE id = $1", [userId]);
+
+    // Optionally, you may want to delete associated data such as posts, comments, etc.
+
+    res.json({ message: "Account deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error deleting account" });
+  }
+});
+
+
+
 // Add this endpoint in your server code
 app.get("/admin/users", async (req, res) => {
   try {

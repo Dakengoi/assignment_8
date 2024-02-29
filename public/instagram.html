@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Messenger</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+    }
+    .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: #fff;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .header {
+        background-color: #4267B2;
+        color: #fff;
+        padding: 10px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .header h1 {
+        margin: 0;
+        font-size: 24px;
+    }
+    .messages {
+        padding: 20px;
+        max-height: 400px;
+        overflow-y: auto;
+    }
+    .message {
+        margin-bottom: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f2f2f2;
+    }
+    .message.sender {
+        align-self: flex-end;
+        background-color: #DCF8C6;
+    }
+    .message.sender p {
+        text-align: right;
+    }
+    .message.receiver {
+        align-self: flex-start;
+    }
+    .message.receiver p {
+        text-align: left;
+    }
+    .input-container {
+        padding: 10px;
+        border-top: 1px solid #ccc;
+    }
+    .input-container input[type=text] {
+        width: calc(100% - 20px);
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        outline: none;
+    }
+    .input-container button {
+        width: 80px;
+        padding: 10px;
+        margin-left: 10px;
+        border: none;
+        border-radius: 5px;
+        background-color: #4267B2;
+        color: #fff;
+        cursor: pointer;
+        outline: none;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Social Media Messenger</h1>
+    </div>
+    <div class="messages" id="messages">
+        <!-- Messages will be displayed here -->
+    </div>
+    <div class="input-container">
+        <input type="text" id="messageInput" placeholder="Type a message...">
+        <button onclick="sendMessage()">Send</button>
+    </div>
+</div>
+
+<script>
+    function sendMessage() {
+        var messageInput = document.getElementById('messageInput');
+        var message = messageInput.value.trim();
+        if (message !== '') {
+            var messagesDiv = document.getElementById('messages');
+            var newMessageDiv = document.createElement('div');
+            newMessageDiv.classList.add('message', 'sender');
+            newMessageDiv.innerHTML = '<p>' + message + '</p>';
+            messagesDiv.appendChild(newMessageDiv);
+            messageInput.value = '';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+    }
+</script>
+
+</body>
+</html>
