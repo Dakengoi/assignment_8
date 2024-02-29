@@ -9,12 +9,8 @@ const app = express();
 const port = 3000;
 
 const pool = new Pool({
-  user: "postgres",
-  host: "127.0.0.1",
-  database: "social-media",
-  password: "asdfghjkl;'",
-  port: 5432,
-});
+  connectionString: process.env.POSTGRES_URL ,
+})
 
 app.use(morgan("dev"));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -365,6 +361,56 @@ app.get("/admin/users", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Error fetching users for admin" });
+  }
+});
+// Update user
+app.put("/admin/users/:id", async (req, res) => {
+  const userId = req.params.id;
+  const { username, followers, following } = req.body;
+
+  // Validation: Check if required fields are provided
+  if (!username || !followers || !following) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    // Update user information in the database
+    const updateUser = await pool.query(
+      "UPDATE users SET username = $1, followers = $2, following = $3 WHERE id = $4 RETURNING *",
+      [username, followers, following, userId]
+    );
+
+    // Check if user exists
+    if (updateUser.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Send updated user data to the frontend
+    res.json(updateUser.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error updating user" });
+  }
+});
+
+// Delete user
+app.delete("/admin/users/:id", async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    // Delete user from the database
+    const deletedUser = await pool.query("DELETE FROM users WHERE id = $1 RETURNING *", [userId]);
+
+    // Check if user exists
+    if (deletedUser.rows.length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Send success message to the frontend
+    res.json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error deleting user" });
   }
 });
 
