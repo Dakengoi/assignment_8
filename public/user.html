@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #0d0d0d;">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #000000;">
     <div class="container-fluid">
       <button type="button" class="btn btn-dark" href="#" onclick="logout()"><span style="color: rgb(0, 8, 255);">Logout</span></button>
     </div>
@@ -18,11 +18,11 @@
       <div class="container">
         <div class="row  ">
           
-          <div class="col-lg-6"><img
+          <div class="col-lg-5" ><img
             src="https://bootdey.com/img/Content/avatar/avatar7.png"
             title=""
-            alt=""
-          /></div>
+            alt="" class="img-thumbnail" style="border-radius: 50%; width: 250px;"
+        ></div>
                     <div class="col-lg-6" id="user-profile">
                     </div>
                       </div>
@@ -115,7 +115,7 @@
                           aria-label="Close"
                         ></button>
                       </div>
-                      <div class="modal-body" id="modal-body"></div>
+                      <div  id="modal-body"></div>
                       <div class="modal-footer">
                         <button
                           type="button"
@@ -143,32 +143,33 @@
         <h1>User Account Management</h1>
 
         <h2>Update User Data</h2>
-        <div id="update-user-form">
-          <label for="username">Username:</label>
+        <div class="shadow-lg p-3 mb-5 bg-body rounded" id="update-user-form">
+          <label for="username" >Username:</label>
           <input type="text" id="username" placeholder="Enter new username" style="width: 100%;"><br><br>
           <label for="email">Email:</label>
           <input type="email" id="email" placeholder="Enter new email" style="width: 100%;"><br><br>
           <label for="password">Password:</label>
           <input type="password" id="password" placeholder="Enter new password" style="width: 100%;"><br><br>
-          <button id="update-user-btn" style="width: 100%;">Update Data</button>
+          <button class="btn btn-primary" id="update-user-btn" style="width: 100%;">Update Data</button>
         </div>
         <h2>Delete Account</h2>
-        <div id="delete-account-form">
+        <div class="shadow-lg p-3 mb-5 bg-body rounded" id="delete-account-form">
           <label for="delete-confirm">Type 'DELETE' to confirm:</label>
           <input type="text" id="delete-confirm" placeholder="Type 'DELETE'" style="width: 100%;"><br><br>
-          <button id="delete-account-btn" style="width: 100%;">Delete Account</button>
+          <button class="btn btn-primary" id="delete-account-btn" style="width: 100%;">Delete Account</button>
         </div>
         <div id="message"></div>
   
-    <div id="follow-unfollow">
+    <div class="shadow p-3 mb-5 bg-body rounded" id="follow-unfollow" style="width: 100%;">
       <!-- Follow/Unfollow buttons and form go here -->
     </div>
     <h3>Create a New Post</h3>
-<div>
-  <textarea id="post-content" rows="4" cols="50" placeholder="Write your post here..."></textarea>
-</div>
+<div class="shadow p-3 mb-5 bg-body rounded">
+  <textarea class="mx-auto" id="post-content" style="width: 100%;" rows="4" cols="50" placeholder="Write your post here..."></textarea>
+<br>
 <button class="btn btn-primary" onclick="createPost()">Post</button>
   </div>
+</div>
   <div id="posts-container"></div>
       </div>
     </section>
@@ -226,7 +227,8 @@
                 ${user.isFollowing
                   ? `<button class="btn btn-danger" onclick="handleFollowButtonClick(${user.id}, '${unfollowEndpoint}')">Unfollow</button>`
                   : `<button class="btn btn-primary" onclick="handleFollowButtonClick(${user.id}, '${followEndpoint}')">Follow</button>`}
-              </li>`).join('')}
+                  <br>
+              </li><br>`).join('')}
           </ul>
         `;
       } catch (error) {
@@ -246,53 +248,54 @@
 });
 });
 
-    const fetchFollowers = async (userId) => {
-  try {
+const fetchFollowers = async () => { 
+  try { 
     console.log("Fetching followers");
-    const response = await fetch(`http://localhost:3000/followers/${userId}`);
-    if (!response.ok) {
-      throw new Error(`Error fetching followers. Status: ${response.status}`);
-    }
-
-    const followersData = await response.json();
-    console.log("Followers data:", followersData);
+    const response = await fetch('http://localhost:3000/followers'); 
+    if (!response.ok) { 
+      throw new Error(`Error fetching followers. Status: ${response.status}`); 
+    } 
+ 
+    const followersData = await response.json(); 
+    console.log("Followers data:", followersData.username);
     const followersModalBody = document.querySelector('.modal-body');
-
-    // Clear the modal body content before adding new data
+    
+    // Очищаем содержимое модального окна перед добавлением новых данных
     followersModalBody.innerHTML = '';
 
-    // Add each follower to the modal body
+    // Добавляем каждого последователя в модальное окно
     followersData.forEach(follower => {
       followersModalBody.innerHTML += `<p>${follower.username}</p>`;
     });
-  } catch (error) {
-    console.error('Error fetching followers:', error);
-  }
-};
+  } catch (error) { 
+    console.error('Error fetching followers:', error); 
+  } 
+}; 
 
-const fetchFollowing = async (userId) => {
-  try {
+const fetchFollowing = async () => { 
+  try { 
     console.log("Fetching followings");
-    const response = await fetch(`http://localhost:3000/following/${userId}`);
-    if (!response.ok) {
-      throw new Error(`Error fetching following. Status: ${response.status}`);
-    }
-
-    const followingData = await response.json();
+    const response = await fetch('http://localhost:3000/following'); 
+    if (!response.ok) { 
+      throw new Error(`Error fetching followers. Status: ${response.status}`); 
+    } 
+ 
+    const followingData = await response.json(); 
     console.log("Following data:", followingData);
-    const followingModalBody = document.querySelector('.modal-body');
-
-    // Clear the modal body content before adding new data
+    const followingModalBody = document.querySelector('#modal-body');
+    
+    // Очищаем содержимое модального окна перед добавлением новых данных  
     followingModalBody.innerHTML = '';
 
-    // Add each following user to the modal body
+    // Добавляем каждого последователя в модальное окно
     followingData.forEach(following => {
       followingModalBody.innerHTML += `<p>${following.username}</p>`;
     });
-  } catch (error) {
-    console.error('Error fetching following:', error);
-  }
-};
+  } catch (error) { 
+    console.error('Error fetching following:', error); 
+  } 
+}; 
+
 
 
 const fetchUserPosts = async () => {
@@ -361,9 +364,9 @@ const handleFollowButtonClick = async (userId, action) => {
       posts.forEach(post=>{
         fetch(`/user/${post.user_id}`).then(response =>response.json()).then(user=>{
           
-          userPostContainer.innerHTML+=`<div class="" style="margin:10px 100px; padding: 10px; border: 1px solid black"><p>${user.username} </p> 
+          userPostContainer.innerHTML+=`<div class="mx-auto" style="width: 75%; margin:10px 100px; padding: 10px; border: 1px solid black; border-radius: 10px" ><h3>${user.username} </h3> 
                                         <p>${post.content} </p>
-                                        <p>${post.created_at} </p></div>`
+                                        <p style="color: #313131 ">${post.created_at} </p></div>`
           
         })
         

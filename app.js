@@ -40,7 +40,7 @@ app.post("/register", async (req, res) => {
     hashedPassword,
     "user",
     [],
-    [49, 61, 62, 63, 64, 65],
+    [],
   ];
 
   try {
@@ -99,10 +99,10 @@ app.post("/logout", (req, res) => {
     res.redirect("/");
   });
 });
-app.get('/followers/:userId', async (req, res) => {
-  const userId = req.params.userId;
+
+app.get('/followers', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT u.* FROM users u JOIN followers f ON u.id = f.user_id WHERE f.user_id = $1', [userId]);
+    const { rows } = await pool.query('SELECT * FROM followers');
     res.json(rows);
   } catch (error) {
     console.error('Error fetching followers:', error);
@@ -110,16 +110,17 @@ app.get('/followers/:userId', async (req, res) => {
   }
 });
 
-app.get('/following/:userId', async (req, res) => {
-  const userId = req.params.userId;
+// Маршрут для получения фолловингов
+app.get('/following', async (req, res) => {
   try {
-    const { rows } = await pool.query('SELECT u.* FROM users u JOIN following f ON u.id = f.user_id WHERE f.user_id = $1', [userId]);
+    const { rows } = await pool.query('SELECT * FROM following');
     res.json(rows);
   } catch (error) {
     console.error('Error fetching following:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // Follow user
 app.post("/follow/:userId", async (req, res) => {
@@ -451,6 +452,29 @@ app.delete("/admin/users/:id", async (req, res) => {
     res.status(500).json({ error: "Error deleting user" });
   }
 });
+
+
+app.delete('/post/:id', async (req, res) => {
+  const postId = req.params.id
+  try {
+      const result = await pool.query('DELETE FROM posts WHERE id = $1', [postId])
+      res.json({  message: 'Post deleted' })
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error deleting post', details: err.message });
+}
+})
+app.get('/post/posts', async (req, res) => {
+  try {
+      const posts = await pool.query('SELECT * FROM posts')
+      res.json(posts.rows)
+  } catch (err) {
+      console.error(err)
+      res.json(err)
+  }
+})
+
+
 
 const checkUserRole = (req, res, next) => {
   const role = req.session.role;

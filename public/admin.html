@@ -3,7 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="indexx.css">
+    <style>body{
+      background-color: #25252b;
+    }</style>
     <title>User Management</title>
     <!-- Bootstrap CSS -->
     <link
@@ -21,6 +24,7 @@
         <button type="button" class="btn btn-dark" href="#" onclick="logout()">
           <span style="color: rgb(0, 8, 255)">Logout</span>
         </button>
+        <button class="btn btn-dark" href="" id="postLink">Post of Users</button>
       </div>
     </nav>
     <div class="container">
@@ -83,6 +87,9 @@
         </div>
       </div>
     </div>
+<center><div  id="content" ></div>
+</center>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
@@ -197,6 +204,60 @@
             // Handle error case if needed
           });
       }
+
+const postLink = document.getElementById('postLink')
+const content = document.getElementById('content')
+      postLink.addEventListener('click', postLinkClick);
+
+function postLinkClick(event) {
+    event.preventDefault();
+    fetch('/posts')
+    .then(response => response.json())
+    .then(posts => {
+        console.log(posts); // Add this line to inspect the structure of the response
+        content.innerHTML = '';
+        const contentBlock = document.createElement("div")
+        contentBlock.classList.add("content-block")
+        posts.forEach(post => {
+            
+                
+                    fetch(`/user/${post.user_id}`).then(response => response.json()).then(postuser => {
+                        
+                        contentBlock.innerHTML += ` <div class="post-block" style="width: 50%; margin:10px 80px; padding: 10px; border: 1px solid black; border-radius: 10px">
+                                            <p class="post-user-info">${postuser.username}</p>
+                                            <p>${post.content}</p>
+                                            <p class="post-user-info">${post.created_at}</p>
+                                            <button class="delete-btn" style="background-color: #4000c9; color:white;" onclick="deletePost(${post.id})">Delete</button>
+                                        </div>`
+                    content.appendChild(contentBlock)
+                    })
+                    
+                
+                .catch(error => console.error(error))
+            
+        });
+    })
+    .catch(error => {console.error(error)})
+}
+
+async function deletePost(postId) {
+    try {
+        const confirmDelete = confirm('Are you sure you want to delete this post?');
+        if (confirmDelete) {
+            const deleteResponse = await fetch(`/post/${postId}`, {
+                method: 'DELETE',
+            });
+            if (deleteResponse.ok) {
+                alert("Successful!");
+                console.log(deleteResponse)
+            } else {
+                console.error(`Error deleting user with ID ${postId}`);
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
     </script>
   </body>
 </html>
