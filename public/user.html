@@ -251,7 +251,7 @@
 const fetchFollowers = async () => { 
   try { 
     console.log("Fetching followers");
-    const response = await fetch('http://localhost:3000/followers'); 
+    const response = await fetch('/followers'); 
     if (!response.ok) { 
       throw new Error(`Error fetching followers. Status: ${response.status}`); 
     } 
@@ -275,7 +275,7 @@ const fetchFollowers = async () => {
 const fetchFollowing = async () => { 
   try { 
     console.log("Fetching followings");
-    const response = await fetch('http://localhost:3000/following'); 
+    const response = await fetch('/following'); 
     if (!response.ok) { 
       throw new Error(`Error fetching followers. Status: ${response.status}`); 
     } 
