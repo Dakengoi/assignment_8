@@ -9,11 +9,14 @@ const app = express();
 const port = 3000;
 
 const pool = new Pool({
-  user: "postgres",
-  host: "127.0.0.1",
-  database: "social-media",
-  password: "asdfghjkl;'",
+  user: "dakengoidatabase_user",
+  host: "dpg-cnghtc2cn0vc73f52l3g-a.oregon-postgres.render.com",
+  database: "dakengoidatabase",
+  password: "FIUraYj6SJ6uHcn0xbEivd85V8OCEdun",
   port: 5432,
+  ssl: {
+    rejectUnauthorized: false
+}
 });
 
 app.use(morgan("dev"));
@@ -389,7 +392,7 @@ app.delete("/delete-account", async (req, res) => {
 app.get("/admin/users", async (req, res) => {
   try {
     const usersResult = await pool.query(
-      "SELECT id, username, followers, following FROM users"
+      "SELECT * FROM users"
     );
     const users = usersResult.rows;
     res.json(users);
@@ -401,18 +404,18 @@ app.get("/admin/users", async (req, res) => {
 // Update user
 app.put("/admin/users/:id", async (req, res) => {
   const userId = req.params.id;
-  const { username, followers, following } = req.body;
+  const { username, email, role } = req.body;
 
   // Validation: Check if required fields are provided
-  if (!username || !followers || !following) {
+  if (!username || !email || !role) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
   try {
     // Update user information in the database
     const updateUser = await pool.query(
-      "UPDATE users SET username = $1, followers = $2, following = $3 WHERE id = $4 RETURNING *",
-      [username, followers, following, userId]
+      "UPDATE users SET username = $1, email = $2, role = $3 WHERE id = $4 RETURNING *",
+      [username, email, role, userId]
     );
 
     // Check if user exists

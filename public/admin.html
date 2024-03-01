@@ -1,137 +1,176 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User Management</title>
     <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
 
-<body>
-
+  <body>
     <div class="container">
-        <div class="row my-4">
-            <div class="col-lg-12">
-                <div class="table-responsive">
-                    <table class="table table-striped text-center" id="userTable">
-                        <thead>
-                            <tr class="table-dark">
-                                <th>ID</th>
-                                <th>Username</th>
-                                <th>Followers</th>
-                                <th>Following</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="userTableBody">
-                            <!-- Dynamic data will be inserted here -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+      <div class="row my-4">
+        <div class="col-lg-12">
+          <div class="table-responsive">
+            <table class="table table-striped text-center" id="userTable">
+              <thead>
+                <tr class="table-dark">
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>Followers</th>
+                  <th>Following</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="userTableBody">
+                <!-- Dynamic data will be inserted here -->
+              </tbody>
+            </table>
+          </div>
         </div>
+      </div>
     </div>
-<!-- Add New User Form -->
-<form id="addUserForm">
-  <input type="text" id="username" placeholder="Username">
-  <input type="text" id="email" placeholder="Email">
-  <input type="password" id="password" placeholder="Password">
-  <button type="submit" class="btn btn-success">Add User</button>
-</form>
 
-<!-- Edit User Modal -->
-<div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="editUserModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog" role="document">
-      <div class="modal-content">
+
+    <!-- Edit User Modal -->
+    <div
+      class="modal fade"
+      id="editUserModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="editUserModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
           <div class="modal-header">
-              <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-              </button>
+            <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
           </div>
           <div class="modal-body">
-              <form id="editUserForm">
-                  <input type="text" id="editUsername" placeholder="Username">
-                  <input type="text" id="editEmail" placeholder="Email">
-                  <input type="password" id="editPassword" placeholder="Password">
-                  <button type="submit" class="btn btn-primary">Save Changes</button>
-              </form>
+            <form id="editUserForm">
+              <input type="text" id="editUsername" placeholder="Username" />
+              <input type="text" id="editEmail" placeholder="Email" />
+              <input type="password" id="editPassword" placeholder="Password" />
+              <button type="submit" class="btn btn-primary">
+                Save Changes
+              </button>
+            </form>
           </div>
+        </div>
       </div>
-  </div>
-</div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
     <!-- Font Awesome for icons -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
-    
+
     <script>
-$(document).ready(function() {
-    // Function to fetch user data and populate the table
-    function fetchUsers() {
-        $.ajax({
-            url: '/admin/users', // Your backend endpoint to fetch users
-            method: 'GET',
-            success: function(users) {
-                // Clear existing table rows
-                $('#userTableBody').empty();
-                // Iterate through each user and append to table
-                users.forEach(function(user) {
-                    $('#userTableBody').append(`
+      async function edituser(userid) {
+  const newusername = prompt("Enter new Username");
+  const newemail = prompt("Enter new Email");
+  const newrole = prompt("Enter new Role");
+  if (newusername !== null && newrole !== null && newemail !== null) {
+    fetch(`/admin/users/${userid}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        username: newusername,
+        email: newemail,
+        role: newrole,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(
+            `Error:${response.status}-${response.statusText}`
+          );
+        }
+      })
+      .then((updateduser) => {
+        console.log("User updated successfully!", updateduser);
+      });
+  }
+}
+
+async function deleteuser(userId) {
+    try {
+        const confirmDelete = confirm('Are you sure you want to delete this user?');
+        if (confirmDelete) {
+            const deleteResponse = await fetch(`/admin/users/${userId}`, {
+                method: 'DELETE',
+            });
+
+            if (deleteResponse.ok) {
+                alert("User deleted succesfully!");
+            } else {
+                console.error(`Error deleting user with ID ${userId}`);
+            }
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+      $(document).ready(function () {
+        // Function to fetch user data and populate the table
+        function fetchUsers() {
+          $.ajax({
+            url: "/admin/users", // Your backend endpoint to fetch users
+            method: "GET",
+            success: function (users) {
+              // Clear existing table rows
+              $("#userTableBody").empty();
+              // Iterate through each user and append to table
+              users.forEach(function (user) {
+                $("#userTableBody").append(`
                         <tr>
                             <td>${user.id}</td>
                             <td>${user.username}</td>
                             <td>${user.followers}</td>
                             <td>${user.following}</td>
+                            <td>${user.email}</td>
+                            <td>${user.role}</td>
+
                             <td>
-                                <button class="btn btn-primary edit-btn" data-id="${user.id}">Edit</button>
-                                <button class="btn btn-danger delete-btn" data-id="${user.id}">Delete</button>
+                                <button class="btn btn-primary edit-btn" onclick="edituser(${user.id})">Edit</button>
+                                <button class="btn btn-danger delete-btn" onclick="deleteuser(${user.id})">Delete</button>
                             </td>
                         </tr>
                     `);
-                });
+              });
             },
-            error: function(err) {
-                console.error(err);
-                alert('Error fetching users');
-            }
-        });
-    }
-    
-    // Call fetchUsers function when the page loads
-    fetchUsers();
-
-
-    // Delete user
-    $(document).on('click', '.delete-btn', function() {
-        const userId = $(this).data('id');
-        if (confirm('Are you sure you want to delete this user?')) {
-            $.ajax({
-                url: `/admin/users/${userId}`,
-                type: 'DELETE',
-                success: function(response) {
-                    alert(response);
-                    // Remove the row from the table
-                    $(`#userTableBody tr[data-id="${userId}"]`).remove();
-                },
-                error: function(err) {
-                    console.error(err);
-                    alert('An error occurred while deleting the user.');
-                }
-            });
+            error: function (err) {
+              console.error(err);
+              alert("Error fetching users");
+            },
+          });
         }
-    });
-});
 
-
-
+        // Call fetchUsers function when the page loads
+        fetchUsers();
 
         
-    </script>
-</body>
+        
 
+      })
+      
+    </script>
+  </body>
 </html>
